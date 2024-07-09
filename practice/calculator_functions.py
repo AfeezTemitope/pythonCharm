@@ -1,27 +1,39 @@
 import sys
 
 
+# @classmethod
 class Calculator:
-    def add(self, x, y):
-       if isinstance(int)(x,(int,float)) and isinstance(int)(y,(int,float)):
+    @staticmethod
+    def add(x, y):
+        if isinstance(x, (int, float)) and isinstance(y, (int, float)):
             return int(x) + int(y)
-       raise 'both input must be numeric'
+        raise 'both input must be numeric'
 
+    @staticmethod
+    def subtract(x, y):
+        if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+            return int(x) - int(y)
+        raise 'both input must be numeric'
 
-    def subtract(self, x, y):
-        return x - y
+    @staticmethod
+    def multiply(x, y):
+        if isinstance(x, (int, float)) and isinstance(y, (int,float)):
+            return int(x) * int(y)
+        raise 'both input must be numeric'
 
-    def multiply(self, x, y):
-        return x * y
+    @staticmethod
+    def divide(x, y):
+        if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+            return int(x) / int(y)
+        raise 'both input must be numeric'
 
-    def divide(self, x, y):
-        return x / y
-
-    def exit(self, exit_button):
+    @staticmethod
+    def exit(exit_button):
         if exit_button == '5':
             sys.exit(0)
 
-    def display_menu(self):
+    @staticmethod
+    def display_menu():
         operator = """Select operation:
         1. Add
         2. Subtract
@@ -43,6 +55,3 @@ class Calculator:
             case _:
                 print("Invalid choice. Please select 1, 2, 3, 4, or 5.")
                 return None
-
-
-
