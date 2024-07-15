@@ -1,7 +1,3 @@
-def my_len(lst):
-    pass
-
-
 class MyStack:
     def __init__(self):
         self.stack_list =[]
