@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from models import db, init_db
 import pymysql
 from urls import bp
@@ -31,6 +31,7 @@ def create_database_if_not_exists():
 
 with app.app_context():
     init_db(app)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

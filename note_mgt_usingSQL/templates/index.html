@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="../static/index.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <img src="" alt="logo">
+            <h1>sexy-Chi-Ass</h1>
             <nav>
                 <ul>
                     <li><a href="#">Home</a></li>
                     <li><a href="#">About</a></li>
                     <li><a href="#">Services</a></li>
                     <li><a href="#">Contact</a></li>
-                    <li><a href="{{ url_for('login') }}">
+                    <li><a href="login.html">
                         <button>Login</button></a></li>
                 </ul>
             </nav>
@@ -24,9 +24,18 @@
     </header>
     <section class="hero">
         <div class="heroContainer">
-            <img src="{{ url_for('static', filename='contact-icon-png-0.png') }}" alt="hero">
+            <img src="https://cdn3d.iconscout.com/3d/premium/thumb/note-10714504-8662946.png" alt="hero">
         </div>
         <div class="heroForm">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="flash {{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
          <form method="POST" action="{{ url_for('register_route') }}">
                 <h2>Registration Form</h2>
 

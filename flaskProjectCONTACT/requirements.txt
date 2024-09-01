@@ -1,0 +1,5 @@
+Flask~=3.0.3
+Flask-SQLAlchemy
+mysql-connector-python
+SQLAlchemy~=2.0.32
+bcrypt~=4.2.0

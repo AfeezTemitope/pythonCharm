@@ -1,6 +1,6 @@
 from datetime import datetime
 from functools import wraps
-from flask import request, jsonify, session, redirect, url_for
+from flask import request, jsonify, session, redirect, url_for, flash
 
 from models import Count, db, User, Note
 
@@ -24,19 +24,21 @@ def generate_id():
 
 
 def register():
-    data = request.form
+    data = request.get_json()
     username = data.get('username', '').strip().lower()
     password = data.get('password', '').strip()
     if not username or not password:
-        return jsonify({"message": "username or password cannot be empty"}), 400
+        return "username or password cannot be empty", 400
+
     if User.query.filter_by(username=username).first():
-        return jsonify({"message": "username already exists"}), 400
+        return "username already exist", 400
+
     user_id = generate_id()
     user = User(id=user_id, username=username)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
-    return  redirect(url_for('login'))
+    return jsonify("user created successfully"), 201
     #return jsonify({"message": "user created"}), 201
 
 

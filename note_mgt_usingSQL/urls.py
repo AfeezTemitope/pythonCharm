@@ -1,4 +1,6 @@
 from flask import Blueprint, session, jsonify, request, render_template
+
+import config
 from views import register, login, add_note, delete_note, edit_note, find_note, get_all_note
 from views import login_required
 
@@ -10,7 +12,7 @@ def register_route():
     try:
         if request.method == 'POST':
             return register()
-        return render_template('index.html')
+        #return render_template('index.html')
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
@@ -18,7 +20,9 @@ def register_route():
 @bp.route("/login", methods=['POST'])
 def login_route():
     try:
-        return login()
+        if request.method == 'POST':
+            return login()
+        #return render_template('login.html')
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 

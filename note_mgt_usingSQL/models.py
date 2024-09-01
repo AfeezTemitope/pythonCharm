@@ -7,8 +7,8 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)  # Adjusted length for bcrypt
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
 
     def set_password(self, plain_password):
         self.password = bcrypt.hashpw(plain_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -33,7 +33,7 @@ class Count(db.Model):
 
 def init_db(app):
     with app.app_context():
-        db.create_all()  # Create tables
+        db.create_all()
         if not Count.query.filter_by(name='user_id').first():
             new_count = Count(name='user_id', count=0)
             db.session.add(new_count)
