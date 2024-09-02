@@ -60,11 +60,11 @@ def add_note():
     title = data['title'].strip()
     if not title:
         return jsonify({"message": "title cannot be empty"}), 400
-    existing_notes = Note.query.filter_by(title=title, user_id=user_id).first()
+    existing_notes = Note.query.filter_by(title=title, owner_id=user_id).first()
     if existing_notes:
         return jsonify({"message": "note already exists"}), 400
     new_note = Note(id=generate_id(), title=title, content=data['content'], author=data['author'], user_id=user_id,
-                    created_at=datetime.now().strftime("%Y-%m-%d"))
+                    owner_id=user_id, created_at=datetime.now().strftime("%Y-%m-%d"))
     db.session.add(new_note)
     db.session.commit()
     return jsonify({"message": "note created"}), 201
@@ -99,42 +99,96 @@ def edit_note():
         return jsonify({"message": "note not found"}), 400
 
 
+# def find_note():
+#     data = request.get_json()
+#     title = data['title'].strip()
+#     user_id = data['user_id']
+#     if title:
+#         if user_id:
+#             note = Note.query.filter_by(title=title, user_id=user_id).first()
+#         else:
+#             note = Note.query.filter_by(title=title).first()
+#         if note:
+#             return jsonify({"message": "note found", "note": note.as_dict()}), 200
+#         else:
+#             return jsonify({"message": "note not found"}), 400
+#     else:
+#         return jsonify({"message": "title cannot be empty"}), 400
+
+
+# def get_all_note():
+#     user_id = session['user_id']
+#     limit = int(request.args.get('limit', 10))
+#     notes_list = Note.query.filter_by(user_id=user_id).limit(limit).all()
+#     if notes_list:
+#         return jsonify({"notes": [note.as_dict() for note in notes_list]}), 200
+#     else:
+#         return jsonify({"message": "note not found"}), 400
+
+
 def find_note():
     data = request.get_json()
     title = data['title'].strip()
-    user_id = data['user_id']
+    user_id = session['user_id']
     if title:
-        if user_id:
-            note = Note.query.filter_by(title=title, user_id=user_id).first()
-        else:
-            note = Note.query.filter_by(title=title).first()
+        note = Note.query.filter(
+            Note.title == title,
+            (Note.owner_id == user_id) |
+            (Note.shared_with.any(id=user_id))
+        ).first()
         if note:
-            return jsonify({"message": "note found", "note": note.as_dict()}), 200
+            return jsonify({"message": "Note found", "note": note.as_dict()}), 200
         else:
-            return jsonify({"message": "note not found"}), 400
+            return jsonify({"message": "Note not found"}), 404
     else:
-        return jsonify({"message": "title cannot be empty"}), 400
+        return jsonify({"message": "Title cannot be empty"}), 400
+
 
 
 def get_all_note():
     user_id = session['user_id']
+    owner_id = user_id
     limit = int(request.args.get('limit', 10))
-    notes_list = Note.query.filter_by(user_id=user_id).limit(limit).all()
+    notes_list = Note.query.filter(
+        (Note.owner_id == user_id) |
+        (Note.shared_with.any(id=owner_id))
+    ).limit(limit).all()
     if notes_list:
         return jsonify({"notes": [note.as_dict() for note in notes_list]}), 200
     else:
-        return jsonify({"message": "note not found"}), 400
+        return jsonify({"message": "No notes found"}), 404
 
 
 def note_as_dict(self):
     return {
-        "id": self.id,
+        "note_id": self.id,
         "title": self.title,
         "content": self.content,
         "author": self.author,
-        "user_id": self.user_id,
-        "created_at": self.created_at.strftime("%Y-%m-%d")
+        "owner_id": self.user_id,
+        "created_at": self.created_at.strftime("%Y-%m-%d"),
+
     }
 
 
 Note.as_dict = note_as_dict
+
+
+def share_note():
+    data = request.get_json()
+    note_id = data['note_id']
+    user_ids = data.get('shared_with', [])
+
+    if 'user_id' not in session:
+        return jsonify({"message": "You need to log in to share notes"}), 401
+    current_user_id = session['user_id']
+    note = Note.query.filter_by(id=note_id, owner_id=current_user_id).first()
+    if not note:
+        return jsonify({"message": "Note not found or not owned by you"}), 404
+    users_to_share_with = User.query.filter(User.id.in_(user_ids)).all()
+    existing_shared_users = set(user.id for user in note.shared_with)
+    new_users = [user for user in users_to_share_with if user.id not in existing_shared_users]
+    note.shared_with.extend(new_users)
+    db.session.commit()
+    return jsonify({"message": "Note shared successfully"}), 200
+

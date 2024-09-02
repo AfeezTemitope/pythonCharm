@@ -1,13 +1,13 @@
 from flask import Blueprint, session, jsonify, request, render_template
 
 import config
-from views import register, login, add_note, delete_note, edit_note, find_note, get_all_note
+from views import register, login, add_note, delete_note, edit_note, find_note, get_all_note, share_note
 from views import login_required
 
 bp = Blueprint('api', __name__)
 
 
-@bp.route("/register", methods=['POST'])
+@bp.post("/register")
 def register_route():
     try:
         if request.method == 'POST':
@@ -17,7 +17,7 @@ def register_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/login", methods=['POST'])
+@bp.post("/login")
 def login_route():
     try:
         if request.method == 'POST':
@@ -27,7 +27,7 @@ def login_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/notes", methods=["POST"])
+@bp.post("/notes")
 @login_required
 def create_note_route():
     try:
@@ -36,7 +36,7 @@ def create_note_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/delete", methods=["DELETE"])
+@bp.delete("/delete")
 @login_required
 def delete_note_route():
     try:
@@ -45,7 +45,7 @@ def delete_note_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/update", methods=["PUT"])
+@bp.put("/update")
 @login_required
 def update_note_route():
     try:
@@ -54,7 +54,7 @@ def update_note_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/get_note", methods=["POST"])
+@bp.post("/get_note")
 def get_note_route():
     try:
         return find_note()
@@ -62,7 +62,7 @@ def get_note_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/notes", methods=["GET"])
+@bp.get("/notes")
 @login_required
 def get_all_notes_route():
     try:
@@ -71,7 +71,13 @@ def get_all_notes_route():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/logout", methods=["POST"])
+@bp.post('/share_note')
+@login_required
+def share_note_route():
+    return share_note()
+
+
+@bp.post("/logout")
 @login_required
 def logout_route():
     session.pop('user_id', None)
