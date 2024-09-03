@@ -49,7 +49,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         session['user_id'] = user.id
-        return jsonify({"message": "login successful"}), 200
+        return "login successful", 200
     else:
         return jsonify({"message": "invalid username or password"}), 400
 
