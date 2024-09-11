@@ -1,9 +1,14 @@
 class Huge_integer:
     def __init__(self):
         self.digits = [0] * 40
+        self.is_negative = False
 
     def parse(self, s):
         s = s.strip()
+        if s[0] == '-':
+            self.is_negative = True
+        else:
+            self.is_negative = False
         if len(s) > 40:
             raise ValueError("Number exceeds 40 digits")
         for i, char in enumerate(reversed(s)):
@@ -11,21 +16,15 @@ class Huge_integer:
                 self.digits[i] = int(char)
             else:
                 raise ValueError(f"Invalid character '{char}' in input")
-
         for i in range(len(s), 40):
             self.digits[i] = 0
 
     def __str__(self):
-        return ''.join(map(str, reversed(self.digits))).lstrip('0') or '0'
+        if self.is_negative:
+            return ''.join(map(str, reversed(self.digits))).lstrip('0') or '0'
+        else:
+            return ''.join(map(str, reversed(self.digits))).lstrip('0') or '0'
 
-    def add(self, other):
-        result = Huge_integer()
-        carry = 0
-        for i in range(40):
-            total = self.digits[i] + other.digits[i] + carry
-            result.digits[i] = total % 10
-            carry = total // 10
-        return result
 
     def subtract(self, other):
         result = Huge_integer()
@@ -40,6 +39,14 @@ class Huge_integer:
             result.digits[i] = diff
         return result
 
+    def add(self, other):
+        result = Huge_integer()
+        carry = 0
+        for i in range(40):
+            total = self.digits[i] + other.digits[i] + carry
+            result.digits[i] = total % 10
+            carry = total // 10
+        return result
     def isEqualTo(self, other):
         return self.digits == other.digits
 

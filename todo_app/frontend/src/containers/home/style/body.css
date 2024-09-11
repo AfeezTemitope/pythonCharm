@@ -1,0 +1,15 @@
+{
+    background-color: black;
+    color : white;
+}
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.image-section img{
+    height: auto;
+    width: 70%;
+}

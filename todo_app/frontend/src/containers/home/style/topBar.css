@@ -1,0 +1,21 @@
+.topBar_container{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    background-color: #61dafb;
+    position: sticky;
+    top: 0;
+    font-style: italic;
+    font-family: Cakecafe;
+}
+
+/*.topbar_list{*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    width: 35%;*/
+/*}*/
+/*.list_item{*/
+/*list-style: none;*/
+
+/*}*/

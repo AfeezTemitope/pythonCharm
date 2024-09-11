@@ -1,9 +1,18 @@
 from flask import Flask
-app = Flask(__name__)
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+from models import db
+from urls import bp
+
+app = Flask(__name__)
+app.config.from_object('config.Config')
+
+app.register_blueprint(bp)
+db.init_app(app)
+
+
+with app.app_context():
+    db.create_all()
+
 
 if __name__ == '__main__':
     app.run()
