@@ -4,7 +4,7 @@ import bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-
+BLOCKLIST = set()
 
 
 task_user = db.Table('task_user',
@@ -45,6 +45,13 @@ class Task(db.Model):
         self.title = title
         self.description = description
         self.user_id = user_id
+
+    @classmethod
+    def from_dict(cls, data, user_id):
+        task_data = data.get('title', {})
+        title = task_data.get('title')
+        description = task_data.get('description', '').strip()
+        return cls(title=title, description=description, user_id=user_id)
 
     def __repr__(self):
         return f'<Task {self.title}>'

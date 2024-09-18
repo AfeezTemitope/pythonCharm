@@ -1,12 +1,14 @@
 from flask import Flask
-
+from flask_jwt_extended import JWTManager
 from models import db
-from urls import bp
+from urls import todo_bp
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
 
-app.register_blueprint(bp)
+jwt = JWTManager(app)
+app.register_blueprint(todo_bp)
+
 db.init_app(app)
 
 

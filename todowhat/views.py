@@ -1,13 +1,14 @@
 from flask import request, jsonify
 
-from models import User, db, Task
-from flask_jwt_extended import create_access_token, get_jwt_identity
+# from app import jwt
+from models import User, db, Task, BLOCKLIST
+from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt
 
 
 def validate_password_length(password):
     if len(password) < 6:
         return False, "Password must be at least 6 characters"
-    return True
+    return True, ""
 
 
 def register():
@@ -45,17 +46,16 @@ def login():
 def add_task():
     user_id = get_jwt_identity()
     data = request.get_json()
-    title = data.get('title', '').strip()
-    description = data.get('description', '').strip()
 
-    if not title:
+    new_task = Task.from_dict(data, user_id)
+
+    if not new_task.title:
         return jsonify({"message": 'title cannot be empty'}), 400
 
-    existing_task = Task.query.filter_by(title=title, user_id=user_id).first()
+    existing_task = Task.query.filter_by(title=new_task.title, user_id=user_id).first()
     if existing_task:
         return jsonify({"message": 'Task already exists'}), 400
 
-    new_task = Task(title=title, description=description, user_id=user_id)
     db.session.add(new_task)
     try:
         db.session.commit()
@@ -100,6 +100,18 @@ def edit_task():
     return jsonify({"message" : "Task updated successfully"}), 200
 
 
+def search_task():
+    user_id = get_jwt_identity()
+    title = request.args.get('title', '').strip()
+
+    tasks = Task.query.filter(Task.user_id == user_id, Task.title.like(f'%{title}%')).all()
+    if not tasks:
+        return jsonify({"message": "No tasks found"}), 404
+
+    tasks_data = [{"task_id": task.id, "title": task.title, "description": task.description} for task in tasks]
+    return jsonify({"tasks": tasks_data}), 200
+
+
 def share_task():
     var = get_jwt_identity()
     data = request.get_json()
@@ -111,7 +123,7 @@ def share_task():
         task.shared_tasks.append(user_to_share_with)
         db.session.commit()
         return jsonify({"message": "task shared successfully"}), 200
-    return jsonify({ "message": "Task not found"}), 400
+    return "Task not found", 400
 
 
 def get_tasks():
@@ -149,5 +161,14 @@ def get_profile():
         "profile_picture": user.profile_picture
     }
     return {"profile": profile}, 200
+
+
+def logout():
+    jti = get_jwt()['jti']
+    BLOCKLIST.add(jti)
+    return jsonify({"msg": "Successfully logged out"}), 200
+
+
+
 
 
